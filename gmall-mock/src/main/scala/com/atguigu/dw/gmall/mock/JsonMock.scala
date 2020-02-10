@@ -119,13 +119,13 @@ object JsonMock {
             val oneStartupLog: String = initOneStartupLog()
             println(oneStartupLog)
             // 发送启动日志
-//            LogUploader.sendLog(oneStartupLog)
+            LogUploader.sendLog(oneStartupLog)
             // 模拟出来多条事件日志
             while (!quitOpts.getRandomOption()) {
                 // 生成一条事件日志
                 val oneEventLog: String = initOneEventLog(oneStartupLog)
                 // 发送事件日志
-//                LogUploader.sendLog(oneEventLog)
+                LogUploader.sendLog(oneEventLog)
                 println(oneEventLog)
                 Thread.sleep(100)
             }
