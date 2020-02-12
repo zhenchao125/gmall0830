@@ -5,4 +5,21 @@
         select count(*) from GMALL0830_DAU where LOGDATE=#{date }
     </select>
 
+    <select id="getHourDau" resultMap="hourDauList">
+        select LOGHOUR, count(*) COUNT from GMALL0830_DAU where LOGDATE=#{date } group by LOGHOUR
+    </select>
+    <!--返回值类型的说明-->
+    <resultMap id="hourDauList" type="java.util.Map" autoMapping="true"></resultMap>
+
 </mapper>
+
+        <!--
+        hour: 10点  count: 100
+        hour: 11点 count: 110
+        hour: 12点 count: 120
+        ...
+
+        每行用 Map
+        多行用List把每行封装起来
+
+        -->
