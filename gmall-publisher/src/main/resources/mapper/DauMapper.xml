@@ -2,7 +2,7 @@
 <!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.atguigu.dw.gmall.gmallpublisher.mapper.DauMapper">
     <select id="getDau" resultType="java.lang.Long">
-        select count(*) from
+        select count(*) from GMALL0830_DAU where LOGDATE=#{date }
     </select>
 
 </mapper>
