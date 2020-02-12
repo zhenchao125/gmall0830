@@ -3,7 +3,7 @@ gmall0830=/opt/gmall0830
 case $1 in
 start)
     for host in hadoop102 hadoop103 hadoop104 ; do
-        ssh $host "source /etc/profile ; nohup java -jar $gmall0830/gmall-logger-0.0.1-SNAPSHOT.jar 1>>$gmall0830/gmall.log  2>>gmall.err &"
+        ssh $host "source /etc/profile ; nohup java -jar $gmall0830/gmall-logger-0.0.1-SNAPSHOT.jar 1>>$gmall0830/gmall.log  2>>$gmall0830/gmall.err &"
     done
 
 ;;
