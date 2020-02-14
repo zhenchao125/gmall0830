@@ -63,8 +63,8 @@ public class PublisherController {
 
      */
     @GetMapping("/realtime-hour")
-    public String getHourCount(@RequestParam("id") String id
-            , @RequestParam("date") String date) {
+    public String getHourTotal(@RequestParam("id") String id,
+                               @RequestParam("date") String date) {
         if ("dau".equals(id)) {
             Map<String, Long> today = service.getHourDau(date);
             Map<String, Long> yesterday = service.getHourDau(getYesterday(date));
@@ -75,8 +75,15 @@ public class PublisherController {
 
             return JSON.toJSONString(result);
 
-        } else if ("".equals(id)) {
+        } else if ("order_amount".equals(id)) {
+            Map<String, Double> today = service.getHourAmount(date);
+            Map<String, Double> yesterday = service.getHourAmount(getYesterday(date));
 
+            HashMap<String, Map<String, Double>> result = new HashMap<>();
+            result.put("today", today);
+            result.put("yesterday", yesterday);
+
+            return JSON.toJSONString(result);
         }
 
 

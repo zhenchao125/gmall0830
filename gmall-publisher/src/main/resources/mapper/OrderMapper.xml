@@ -5,6 +5,11 @@
         select sum(TOTAL_AMOUNT) from GMALL0830_ORDER_INFO where CREATE_DATE=#{date}
     </select>
 
+    <select id="getHourAmount" resultMap="orderAmountList">
+        select CREATE_HOUR, sum(TOTAL_AMOUNT) SUM from GMALL0830_ORDER_INFO  where CREATE_DATE=#{date} group by CREATE_HOUR
+    </select>
+
+    <resultMap id="orderAmountList" type="java.util.Map" autoMapping="true"></resultMap>
 
 
 </mapper>
