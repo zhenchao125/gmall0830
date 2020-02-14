@@ -25,4 +25,7 @@ public interface PublisherService {
      */
 
     Map<String, Long> getHourDau(String date);
+
+    // 获取销售额的总和
+    Double getTotalAmount(String date);
 }

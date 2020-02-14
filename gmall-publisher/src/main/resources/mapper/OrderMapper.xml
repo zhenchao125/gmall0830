@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.dw.gmall.gmallpublisher.mapper.OrderMapper">
+    <select id="getTotalAmount" resultType="java.lang.Double">
+        select sum(TOTAL_AMOUNT) from GMALL0830_ORDER_INFO where CREATE_DATE=#{date}
+    </select>
+
+
+
+</mapper>
+
+        <!--
+        hour: 10点  count: 100
+        hour: 11点 count: 110
+        hour: 12点 count: 120
+        ...
+
+        每行用 Map
+        多行用List把每行封装起来
+
+        -->

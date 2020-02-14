@@ -32,7 +32,7 @@ public class PublisherController {
     public PublisherService service;
 
     @GetMapping("/realtime-total")
-    public String getDau(@RequestParam("date") String date) {
+    public String getTotal(@RequestParam("date") String date) {
         List<Map<String, String>> result = new ArrayList<>();
 
         HashMap<String, String> map1 = new HashMap<>();
@@ -46,6 +46,12 @@ public class PublisherController {
         map2.put("name", "新增设备");
         map2.put("value", "233");
         result.add(map2);
+
+        HashMap<String, String> map3 = new HashMap<>();
+        map3.put("id", "order_amount");
+        map3.put("name", "新增交易额");
+        map3.put("value", service.getTotalAmount(date) + "");
+        result.add(map3);
 
         return JSON.toJSONString(result);
     }

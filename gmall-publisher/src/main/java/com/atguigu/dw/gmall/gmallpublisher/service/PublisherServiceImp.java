@@ -1,6 +1,7 @@
 package com.atguigu.dw.gmall.gmallpublisher.service;
 
 import com.atguigu.dw.gmall.gmallpublisher.mapper.DauMapper;
+import com.atguigu.dw.gmall.gmallpublisher.mapper.OrderMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ public class PublisherServiceImp implements PublisherService {
 
     @Autowired
     DauMapper dauMapper;
+
     @Override
     public Long getDau(String date) {
         // 从数据层读取数据, 然后给Controller使用
@@ -33,10 +35,19 @@ public class PublisherServiceImp implements PublisherService {
         HashMap<String, Long> result = new HashMap<>();
         // 把mapList中的一个Map中的数据取出来, 成为result中的一个key-value
         for (Map map : mapList) {
-            String key = (String)map.get("LOGHOUR");
+            String key = (String) map.get("LOGHOUR");
             Long value = (Long) map.get("COUNT");
             result.put(key, value);
         }
         return result;
+    }
+
+    @Autowired
+    OrderMapper orderMapper;
+
+    @Override
+    public Double getTotalAmount(String date) {
+        Double total = orderMapper.getTotalAmount(date);
+        return total == null ? 0 : total;
     }
 }
