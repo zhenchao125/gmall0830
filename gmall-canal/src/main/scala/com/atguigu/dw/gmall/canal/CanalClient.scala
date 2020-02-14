@@ -44,7 +44,7 @@ object CanalClient {
                     }
                 }
             } else {
-                println("没有拉取到数据, 2s只有继续...")
+                println("没有拉取到数据, 2s后继续...")
                 Thread.sleep(2000)
             }
         }
