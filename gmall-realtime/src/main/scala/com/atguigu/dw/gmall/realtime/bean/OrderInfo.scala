@@ -1,4 +1,4 @@
-package com.atguigu.dw.gmall.realtime.app
+package com.atguigu.dw.gmall.realtime.bean
 
 case class OrderInfo(id: String,
                      province_id: String,
@@ -29,4 +29,3 @@ case class OrderInfo(id: String,
     create_date = create_time.substring(0, 10)
     create_hour = create_time.substring(11, 13)
 }
-

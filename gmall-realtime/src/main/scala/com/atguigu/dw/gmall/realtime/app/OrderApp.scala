@@ -2,6 +2,7 @@ package com.atguigu.dw.gmall.realtime.app
 
 import com.alibaba.fastjson.JSON
 import com.atguigu.dw.gmall.common.Constant
+import com.atguigu.dw.gmall.realtime.bean.OrderInfo
 import com.atguigu.dw.gmall.realtime.util.MyKafkaUtil
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
