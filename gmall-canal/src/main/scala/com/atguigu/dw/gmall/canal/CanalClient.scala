@@ -48,7 +48,6 @@ object CanalClient {
                 Thread.sleep(2000)
             }
         }
-        
     }
 }
 
