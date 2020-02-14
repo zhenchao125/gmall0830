@@ -8,4 +8,5 @@ public class Constant {
     // ctrl + shift + u
     public  static final String STARTUP_TOPIC = "topic_startup";
     public  static final String EVENT_TOPIC = "topic_event";
+    public  static final String ORDER_TOPIC = "topic_order";
 }
