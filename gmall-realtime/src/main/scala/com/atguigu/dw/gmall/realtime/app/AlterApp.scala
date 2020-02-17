@@ -5,7 +5,7 @@ import java.util
 import com.alibaba.fastjson.JSON
 import com.atguigu.dw.gmall.common.Constant
 import com.atguigu.dw.gmall.realtime.bean.{AlertInfo, EventLog}
-import com.atguigu.dw.gmall.realtime.util.MyKafkaUtil
+import com.atguigu.dw.gmall.realtime.util.{EsUtil, MyKafkaUtil}
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Minutes, Seconds, StreamingContext}
@@ -66,10 +66,23 @@ object AlterApp {
                 (uidSet.size() >= 3 && !isClickItem, AlertInfo(mid, uidSet, itemSet, eventList, System.currentTimeMillis()))
         }
         // 4. 把key是true的预警信息写入到es中
-        alertInfoStream.filter(_._1).foreachRDD(rdd => {
-//            rdd.saveToES
-        })
-        
+        import EsUtil._
+        /*alertInfoStream.filter(_._1).map(_._2).foreachRDD(rdd => {
+            
+            rdd.saveToES("gmall0830_coupon_alert")
+            
+            /*rdd.foreachPartition((alertInfoIt: Iterator[AlertInfo]) => {
+                val result: Iterator[(AlertInfo, String)] = alertInfoIt.map(info => {
+                    // 如果不拼接mid, 会导致不同设备的预警信息互相覆盖
+                    (info, info.mid + "_" + info.ts / 1000 / 60)   //
+                })
+                EsUtil.insertBulk("gmall0830_coupon_alert", result)
+            })*/
+        })*/
+        alertInfoStream
+            .filter(_._1)
+            .map(_._2)
+            .foreachRDD(_.saveToES("gmall0830_coupon_alert"))
         alertInfoStream.print(1000)
         ssc.start()
         ssc.awaitTermination()
