@@ -7,7 +7,7 @@ start)
         ssh $host "source /etc/profile; nohup $es_home/bin/elasticsearch 1>>$es_home/logs/es.log 2>>$es_home/logs/error.log &"
     done
 
-    nohup $k_home/bin/kin/kibana 1>>$k_home/logs/k.log 2>>$k_home/logs/error.log &
+    nohup $k_home/bin/kibana 1>>$k_home/logs/k.log 2>>$k_home/logs/error.log &
 
 ;;
 stop)
