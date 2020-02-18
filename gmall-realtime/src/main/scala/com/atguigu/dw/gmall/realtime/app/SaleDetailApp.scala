@@ -54,7 +54,7 @@ object SaleDetailApp {
                 (orderDetail.order_id, orderDetail)
         }
         
-        // 3. join流
+        // 3. 双流join
         val fullJointSteam = orderInfoStream.fullOuterJoin(orderDetailStream).mapPartitions(it => {
             // 获取一个redis的客户端
             val client: Jedis = RedisUtil.getJedisClient
@@ -79,7 +79,7 @@ object SaleDetailApp {
                     cacheOrderInfo(client, orderInfo)
                     import scala.collection.JavaConversions._
                     // 去orderDetail缓存中, 读出与当前这个orderInfo对应的OrderDetail
-                    val orderDetailJsonSet: util.Set[String] = client.keys(s"order_detail_${orderInfo.id}_*")
+                    val orderDetailJsonSet: util.Set[String] = client.keys(s"orderDetail_${orderInfo.id}_*")
                     val SaleDetailSet = orderDetailJsonSet.map(jsonString => {
                         val orderDetail: OrderDetail = JSON.parseObject(jsonString, classOf[OrderDetail])
                         SaleDetail().mergeOrderInfo(orderInfo).mergeOrderDetail(orderDetail)
@@ -98,7 +98,7 @@ object SaleDetailApp {
                         SaleDetail().mergeOrderInfo(orderInfo).mergeOrderDetail(orderDetail)
                     })
                     
-                    
+                    // 如果有OrderDetail, 则和orderInfo封装在一起
                     if (opt.isDefined) {
                         val orderDetail: OrderDetail = opt.get
                         SaleDetailSet += SaleDetail().mergeOrderInfo(orderInfo).mergeOrderDetail(orderDetail)
