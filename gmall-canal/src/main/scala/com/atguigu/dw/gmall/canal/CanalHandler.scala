@@ -6,7 +6,8 @@ import com.alibaba.fastjson.JSONObject
 import com.alibaba.otter.canal.protocol.CanalEntry
 import com.alibaba.otter.canal.protocol.CanalEntry.EventType
 import com.atguigu.dw.gmall.common.Constant
-import org.apache.kafka.common.internals.Topic
+
+import scala.util.Random
 
 /**
   * Author atguigu
@@ -20,28 +21,36 @@ object CanalHandler {
     def handle(tableName: String, rowDatas: util.List[CanalEntry.RowData], eventType: CanalEntry.EventType) = {
         if ("order_info" == tableName && rowDatas != null && !rowDatas.isEmpty && eventType == EventType.INSERT) {
             sendRowDataToKafka(rowDatas, Constant.ORDER_TOPIC)
-        }else if("order_detail" == tableName && rowDatas != null && !rowDatas.isEmpty && eventType == EventType.INSERT){
+        } else if ("order_detail" == tableName && rowDatas != null && !rowDatas.isEmpty && eventType == EventType.INSERT) {
             sendRowDataToKafka(rowDatas, Constant.DETAIL_TOPIC)
         }
     }
     
     /**
       * 把数据发送到指定的topic中
+      *
       * @param rowDatas
       * @param topic
       */
     private def sendRowDataToKafka(rowDatas: util.List[CanalEntry.RowData], topic: String): Unit = {
         for (rowData <- rowDatas) {
-            val jsonObj = new JSONObject()
-            // 获取到变化后的所有的列
-            val columns: util.List[CanalEntry.Column] = rowData.getAfterColumnsList
-            for (column <- columns) {
-                val key: String = column.getName // 获取列名
-                val value: String = column.getValue // 获取列值
-                jsonObj.put(key, value)
-            }
-            // 得到一个kafka的生产者, 通过生成这向kafka写数据
-            MyKafkaUtil.send(topic, jsonObj.toJSONString)
+            new Thread() {
+                override def run(): Unit = {
+                    val jsonObj = new JSONObject()
+                    // 获取到变化后的所有的列
+                    val columns: util.List[CanalEntry.Column] = rowData.getAfterColumnsList
+                    for (column <- columns) {
+                        val key: String = column.getName // 获取列名
+                        val value: String = column.getValue // 获取列值
+                        jsonObj.put(key, value)
+                    }
+                    Thread.sleep(new Random().nextInt(10 * 1000))
+                    // 得到一个kafka的生产者, 通过生成这向kafka写数据
+                    MyKafkaUtil.send(topic, jsonObj.toJSONString)
+                }
+            }.start()
+            
+            
         }
     }
 }
