@@ -84,7 +84,7 @@ public class PublisherServiceImp implements PublisherService {
         String dsl = DSLUtil.getDSL(date, keyword, field, size, page, countPerPage);
         // 1. 获取客户端
         JestClient client = ESUtil.getClient();
-        Search search = new Search.Builder("")
+        Search search = new Search.Builder(dsl)
                 .build();
         // 2. 得到查询的结果
         SearchResult searchResult = client.execute(search);
@@ -98,6 +98,11 @@ public class PublisherServiceImp implements PublisherService {
         result.put("total", total);
         // 3.2 获取聚合结果
         Map<String, Long> aggMap = new HashMap<>();
+//        System.out.println("searchResult:" + searchResult);
+//        System.out.println("searchResult.getAggregations():" + searchResult.getAggregations());
+//        System.out.println("\"groupby_\" + field" + "groupby_" + field);
+
+//        System.out.println("searchResult.getAggregations().getTermsAggregation(\"groupby_\" + field):" + searchResult.getAggregations().getTermsAggregation("groupby_" + field));
         List<TermsAggregation.Entry> buckets = searchResult.getAggregations().getTermsAggregation("groupby_" + field).getBuckets();
         for (TermsAggregation.Entry entry : buckets) {
             String key = entry.getKey();
