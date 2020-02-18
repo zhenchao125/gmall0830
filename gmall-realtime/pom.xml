@@ -67,7 +67,10 @@
         </dependency>
         <!-- es 相关依赖结束 -->
 
-
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
 
     </dependencies>
 

@@ -10,4 +10,8 @@ public class Constant {
     public  static final String EVENT_TOPIC = "topic_event";
     public  static final String ORDER_TOPIC = "topic_order";
     public  static final String DETAIL_TOPIC = "topic_detail";
+
+
+
+    public  static final String SALE_DETAIL_INDEX = "sale_detail_index0830";
 }

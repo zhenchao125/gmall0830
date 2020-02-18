@@ -1,18 +1,19 @@
 package com.atguigu.dw.gmall.realtime.app
 
 import java.util
+import java.util.Properties
 
 import com.alibaba.fastjson.JSON
 import com.atguigu.dw.gmall.common.Constant
-import com.atguigu.dw.gmall.realtime.bean.{OrderDetail, OrderInfo, SaleDetail}
-import com.atguigu.dw.gmall.realtime.util.{MyKafkaUtil, RedisUtil}
+import com.atguigu.dw.gmall.realtime.bean.{OrderDetail, OrderInfo, SaleDetail, UserInfo}
+import com.atguigu.dw.gmall.realtime.util.{EsUtil, MyKafkaUtil, RedisUtil}
 import org.apache.spark.SparkConf
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import redis.clients.jedis.Jedis
-
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization
+import redis.clients.jedis.Jedis
 
 /**
   * Author atguigu
@@ -30,18 +31,19 @@ object SaleDetailApp {
         val key = "orderDetail_" + orderDetail.order_id + "_" + orderDetail.id
         cacheToRedis(client, key, orderDetail)
     }
+    
     //
-    def cacheToRedis(client: Jedis, key: String, value: AnyRef): Unit ={
+    def cacheToRedis(client: Jedis, key: String, value: AnyRef): Unit = {
         // 需要把value变成json字符串写入到redis
         val content = Serialization.write(value)(DefaultFormats)
-//        client.set(key, content)
-        client.setex(key, 1000 * 60 * 30, content)  // 给每个key添加一个过期时间
+        //        client.set(key, content)
+        client.setex(key, 60 * 30, content) // 给每个key添加一个过期时间
     }
     
     def main(args: Array[String]): Unit = {
         // 1. 从kafka读取数据
         val conf: SparkConf = new SparkConf().setAppName("DauApp").setMaster("local[2]")
-        val ssc: StreamingContext = new StreamingContext(conf, Seconds(3))
+        val ssc: StreamingContext = new StreamingContext(conf, Seconds(5))
         // 2. 读取order_detail 和order_info 相关的流
         val orderInfoStream: DStream[(String, OrderInfo)] = MyKafkaUtil.getKafkaStream(ssc, Constant.ORDER_TOPIC).map {
             case (_, jsonString) =>
@@ -93,7 +95,8 @@ object SaleDetailApp {
                     import scala.collection.JavaConversions._
                     // 去orderDetail缓存中, 读出与当前这个orderInfo对应的OrderDetail
                     val orderDetailJsonSet: util.Set[String] = client.keys(s"orderDetail_${orderInfo.id}_*")
-                    val SaleDetailSet = orderDetailJsonSet.map(jsonString => {
+                    val SaleDetailSet = orderDetailJsonSet.filter(_.startsWith("{")).map(jsonString => {
+                        println("my....: " + jsonString)
                         val orderDetail: OrderDetail = JSON.parseObject(jsonString, classOf[OrderDetail])
                         SaleDetail().mergeOrderInfo(orderInfo).mergeOrderDetail(orderDetail)
                     })
@@ -122,7 +125,36 @@ object SaleDetailApp {
             result
         })
         
-        fullJointSteam.print(10000)
+        // 3. 反查mysql, 补齐User的相关信息
+        // sparksql ds df    rdd->df
+        // 从jdbc读userInfo的数据
+        
+        val jdbcUrl = "jdbc:mysql://hadoop102:3306/gmall0830"
+        val spark: SparkSession = SparkSession.builder()
+            .config(conf)
+            .getOrCreate()
+        import spark.implicits._
+        val props = new Properties()
+        props.put("user", "root")
+        props.put("password", "aaaaaa")
+        val resultRDD = fullJointSteam.transform(rdd => {
+            // 从jdbc读到user信息
+            val userInfoRDD = spark.read.jdbc(jdbcUrl, "user_info", props)
+                .as[UserInfo]
+                .rdd
+                .map(userInfo => (userInfo.id, userInfo))
+            // 已经orderinfo和orderDetail合并的信息
+            val saleDetailRDD = rdd.map(saleDetail => (saleDetail.user_id, saleDetail))
+            
+            saleDetailRDD.join(userInfoRDD).map {
+                case (userId, (saleDetail, userInfo)) =>
+                    saleDetail.mergeUserInfo(userInfo)
+            }
+        })
+        
+        resultRDD.foreachRDD(rdd => {
+            EsUtil.insertBulk(Constant.SALE_DETAIL_INDEX, rdd.collect())
+        })
         ssc.start()
         ssc.awaitTermination();
         
