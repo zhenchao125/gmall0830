@@ -1,5 +1,6 @@
 package com.atguigu.dw.gmall.gmallpublisher.service;
 
+import java.io.IOException;
 import java.util.Map;
 
 public interface PublisherService {
@@ -30,5 +31,15 @@ public interface PublisherService {
     Double getTotalAmount(String date);
     // 获取每小时的销售额明细
     Map<String, Double> getHourAmount(String date);
+    // Map  "total"-> 1000,  "detail"-> 详细记录  "agg"-> Map("F"->100,"M"->100)
+    Map<String, Object> getSaleDetailAndAggregationByField(String date,
+                                                           String keyword,
+                                                           String field,
+                                                           int size,
+                                                           int page,
+                                                           int countPerPage) throws IOException;
+
+
+
 
 }
