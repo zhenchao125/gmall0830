@@ -87,6 +87,7 @@ object SaleDetailApp {
                     SaleDetailSet*/
                 case (orederId, (Some(orderInfo), opt)) =>
                     println("some opt....")
+                    
                     cacheOrderInfo(client, orderInfo)
                     
                     import scala.collection.JavaConversions._
